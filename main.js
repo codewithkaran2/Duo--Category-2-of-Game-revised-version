@@ -1,40 +1,75 @@
+// Full screen toggle function
+function toggleFullScreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+}
+
+// Get canvas and context
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Prompt for player names and update labels
-let p1Name = prompt("Enter name for Player 1:", "Player 1") || "Player 1";
-let p2Name = prompt("Enter name for Player 2:", "Player 2") || "Player 2";
+// Default player names
+const defaultP1Name = "Player 1";
+const defaultP2Name = "Player 2";
+let p1Name = defaultP1Name;
+let p2Name = defaultP2Name;
+
+// Set initial labels
 document.querySelector('.p1-label').textContent = "🟦 " + p1Name;
 document.querySelector('.p2-label').textContent = "🟥 " + p2Name;
 
-// Set game speed and state
+// Game speed and state
 const speed = 5;
 let gameRunning = true;
 
-// Modified starting positions so players are always visible on canvas (y starts at 0)
-// Added property canShoot to manage firing cooldown.
-const player1 = { x: 100, y: 0, width: 40, height: 40, color: "blue", health: 100, shield: 100, shieldActive: false, message: "", canShoot: true };
-const player2 = { x: 600, y: 0, width: 40, height: 40, color: "red", health: 100, shield: 100, shieldActive: false, message: "", canShoot: true };
+// Player objects with initial positions and properties
+const player1 = {
+  x: 100,
+  y: 0,
+  width: 40,
+  height: 40,
+  color: "blue",
+  health: 100,
+  shield: 100,
+  shieldActive: false,
+  message: "",
+  canShoot: true
+};
+const player2 = {
+  x: 600,
+  y: 0,
+  width: 40,
+  height: 40,
+  color: "red",
+  health: 100,
+  shield: 100,
+  shieldActive: false,
+  message: "",
+  canShoot: true
+};
 
 let bullets = [];
 
-// Extended keys object to include shooting and shield keys:
-// For Player 1: Shoot - SPACE (" "), Shield - Q (q)
-// For Player 2: Shoot - ENTER, Shield - M (m)
+// Keys object for movement, shooting, and shield activation
 const keys = {
-  w: false, a: false, s: false, d: false,  // Player 1 movement
-  ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false, // Player 2 movement
-  " ": false, q: false, Enter: false, m: false // Shooting and shield keys
+  w: false, a: false, s: false, d: false,
+  ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false,
+  " ": false, q: false, Enter: false, m: false
 };
 
-// 🎮 Event listeners – also locking the CapsLock key and handling shooting cooldown.
+// Event listeners for keydown and keyup
 document.addEventListener("keydown", (e) => {
   if (e.key === "CapsLock") {
     e.preventDefault();
     return;
   }
   if (keys.hasOwnProperty(e.key)) {
-    // Handle shooting for Player 1 and Player 2
+    // Handle shooting: Player 1 uses SPACE; Player 2 uses ENTER
     if (e.key === " " && player1.canShoot) {
       shootBullet(player1, 1);
       player1.canShoot = false;
@@ -52,16 +87,16 @@ document.addEventListener("keyup", (e) => {
   }
   if (keys.hasOwnProperty(e.key)) {
     keys[e.key] = false;
-    // Reset shooting cooldown when the shoot key is released
-    if(e.key === " ") {
+    // Reset shooting cooldown on keyup
+    if (e.key === " ") {
       player1.canShoot = true;
-    } else if(e.key === "Enter") {
+    } else if (e.key === "Enter") {
       player2.canShoot = true;
     }
   }
 });
 
-// 🎮 Move Player Function
+// Function to move players based on pressed keys
 function movePlayers() {
   if (keys.a && player1.x > 0) player1.x -= speed;
   if (keys.d && player1.x + player1.width < canvas.width) player1.x += speed;
@@ -72,13 +107,13 @@ function movePlayers() {
   if (keys.ArrowRight && player2.x + player2.width < canvas.width) player2.x += speed;
   if (keys.ArrowUp && player2.y > 0) player2.y -= speed;
   if (keys.ArrowDown && player2.y + player2.height < canvas.height) player2.y += speed;
-  
-  // Update shield activation based on key press:
+
+  // Update shield activation based on keys pressed
   player1.shieldActive = keys.q;
   player2.shieldActive = keys.m;
 }
 
-// 🕹️ Game Loop
+// Main game loop
 function gameLoop() {
   if (!gameRunning) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -91,7 +126,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// 🎭 Draw Player (with shield effect if active)
+// Draw a player and, if active, their shield
 function drawPlayer(player) {
   ctx.fillStyle = player.color;
   ctx.fillRect(player.x, player.y, player.width, player.height);
@@ -99,12 +134,12 @@ function drawPlayer(player) {
     ctx.strokeStyle = "cyan";
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.arc(player.x + player.width/2, player.y + player.height/2, player.width, 0, Math.PI * 2);
+    ctx.arc(player.x + player.width / 2, player.y + player.height / 2, player.width, 0, Math.PI * 2);
     ctx.stroke();
   }
 }
 
-// 🎭 Draw Player Messages
+// Draw a message (if any) above the player
 function drawMessage(player) {
   if (player.message) {
     ctx.fillStyle = "white";
@@ -113,10 +148,8 @@ function drawMessage(player) {
   }
 }
 
-// 🔫 Shoot Bullet Function
+// Shoot bullet function
 function shootBullet(player, owner) {
-  // For simplicity, bullets are fired horizontally:
-  // Player 1 shoots to the right; Player 2 shoots to the left.
   const bullet = {
     x: owner === 1 ? player.x + player.width : player.x - 10,
     y: player.y + player.height / 2 - 2,
@@ -129,24 +162,24 @@ function shootBullet(player, owner) {
   bullets.push(bullet);
 }
 
-// 🔄 Update Bullets: move, draw, and handle collisions.
+// Update bullets: move them, draw them, and handle collisions.
 function updateBullets() {
   for (let i = bullets.length - 1; i >= 0; i--) {
     let bullet = bullets[i];
     bullet.x += bullet.speedX;
     bullet.y += bullet.speedY;
     
-    // Draw bullet (different color for each player)
+    // Draw the bullet
     ctx.fillStyle = bullet.owner === 1 ? "cyan" : "orange";
     ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
     
-    // Remove bullet if off screen
+    // Remove bullet if off-screen
     if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
       bullets.splice(i, 1);
       continue;
     }
     
-    // Check collision with opponent (ignoring the owner)
+    // Check collision with opponent
     if (bullet.owner === 1 && rectCollision(bullet, player2)) {
       if (player2.shieldActive && player2.shield > 0) {
         player2.shield -= 10;
@@ -173,7 +206,7 @@ function updateBullets() {
   }
 }
 
-// Helper function to detect rectangle collision
+// Helper function: rectangle collision detection
 function rectCollision(rect1, rect2) {
   return rect1.x < rect2.x + rect2.width &&
          rect1.x + rect1.width > rect2.x &&
@@ -181,7 +214,7 @@ function rectCollision(rect1, rect2) {
          rect1.y + rect1.height > rect2.y;
 }
 
-// Update health bars based on current health values
+// Update health bar elements in the DOM
 function updateHealthBars() {
   const p1HealthBar = document.getElementById("p1HealthBar");
   const p2HealthBar = document.getElementById("p2HealthBar");
@@ -194,13 +227,13 @@ function updateHealthBars() {
   p2HealthText.textContent = player2.health + "%";
 }
 
-// 🔄 Restart Game & Drop Players
+// Restart Game & Reset Players and Names
 function restartGame() {
-  // Fix for Full Screen glitch: exit full screen if active
+  // Exit full screen if active
   if (document.fullscreenElement) {
     document.exitFullscreen();
   }
-  // Reset positions so players are visible (y is set to 0)
+  // Reset positions
   player1.x = 100;
   player1.y = 0;
   player2.x = 600;
@@ -211,10 +244,23 @@ function restartGame() {
   player2.shield = 100;
   gameRunning = false;
   bullets = [];
+
+  // Reset player names
+  document.getElementById("p1Name").value = "";
+  document.getElementById("p2Name").value = "";
+  p1Name = defaultP1Name;
+  p2Name = defaultP2Name;
+  document.querySelector('.p1-label').textContent = "🟦 " + p1Name;
+  document.querySelector('.p2-label').textContent = "🟥 " + p2Name;
+  const p1NameDisplay = document.getElementById("p1NameDisplay");
+  if (p1NameDisplay) p1NameDisplay.textContent = "🟦 " + p1Name;
+  const p2NameDisplay = document.getElementById("p2NameDisplay");
+  if (p2NameDisplay) p2NameDisplay.textContent = "🟥 " + p2Name;
+
   dropPlayers();
 }
 
-// 🎬 Drop Players with Animation (players drop from y=0 to y=300)
+// Drop players with animation (from y=0 to y=300)
 function dropPlayers() {
   let dropSpeed = 5;
   function animateDrop() {
@@ -239,5 +285,26 @@ function dropPlayers() {
   animateDrop();
 }
 
-// 🚀 Start Game
+// Start the game with drop animation
 dropPlayers();
+
+// Automatic Name Update on Input
+document.getElementById("p1Name").addEventListener("input", function() {
+  let newName = this.value.trim();
+  if(newName === "") newName = defaultP1Name;
+  document.querySelector('.p1-label').textContent = "🟦 " + newName;
+  const nameDisplay = document.getElementById("p1NameDisplay");
+  if (nameDisplay) {
+    nameDisplay.textContent = "🟦 " + newName;
+  }
+});
+
+document.getElementById("p2Name").addEventListener("input", function() {
+  let newName = this.value.trim();
+  if(newName === "") newName = defaultP2Name;
+  document.querySelector('.p2-label').textContent = "🟥 " + newName;
+  const nameDisplay = document.getElementById("p2NameDisplay");
+  if (nameDisplay) {
+    nameDisplay.textContent = "🟥 " + newName;
+  }
+});
