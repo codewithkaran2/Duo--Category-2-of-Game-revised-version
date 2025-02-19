@@ -1,0 +1,132 @@
+<!DOCTYPE html>  
+<html lang="en">              
+<head>              
+  <meta charset="UTF-8">              
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">              
+  <title>Chaos Keyboard Battle</title>              
+  <style>  
+    body {  
+      text-align: center;  
+      background: linear-gradient(45deg, #111, #333);  
+      color: white;  
+      font-family: Arial, sans-serif;  
+      margin: 0;  
+      overflow: hidden;  
+    }  
+    canvas {  
+      background: #222;  
+      display: block;  
+      margin: 20px auto;  
+      border: 2px solid white;  
+      box-shadow: 0 0 20px rgba(255,255,255,0.2);  
+    }  
+    .keys, .name-container {  
+      margin-bottom: 10px;  
+      font-size: 18px;  
+    }  
+    .health-bar-container {  
+      position: absolute;  
+      width: 200px;  
+      height: 20px;  
+      background-color: gray;  
+      border: 2px solid white;  
+    }  
+    .health-bar {  
+      height: 100%;  
+      background-color: red;  
+      transition: width 0.2s;  
+    }  
+    .p1-health-container { left: 50px; top: 20px; }  
+    .p2-health-container { right: 50px; top: 20px; }  
+    .player-label {  
+      position: absolute;  
+      font-size: 18px;  
+      font-weight: bold;  
+    }  
+    .p1-label { left: 50px; top: 45px; color: #00BFFF; }  
+    .p2-label { right: 50px; top: 45px; color: #FF4500; }  
+    .level-box {  
+      display: inline-block;  
+      background: linear-gradient(45deg, #007BFF, #00D4FF);  
+      color: white;  
+      font-size: 24px;  
+      font-weight: bold;  
+      padding: 10px 20px;  
+      border-radius: 5px;  
+      margin-top: 10px;  
+    }  
+    .health-text {  
+      position: absolute;  
+      top: 0;  
+      font-weight: bold;  
+      color: white;  
+    }  
+    .p1-health-text { left: 50px; }  
+    .p2-health-text { right: 50px; }  
+    .button-container button, .name-container input {  
+      padding: 10px 20px;  
+      font-size: 16px;  
+      margin: 5px;  
+      border: none;  
+      border-radius: 5px;  
+      cursor: pointer;  
+      background: #444;  
+      color: white;  
+      transition: background 0.3s;  
+    }  
+    .button-container button:hover, .name-container input:hover {  
+      background: #666;  
+    }  
+  </style>              
+</head>              
+<body>              
+  <h1>Chaos Keyboard Battle</h1>    
+  <div class="level-box">Duo</div>      
+  
+  <div class="name-container">
+    <input type="text" id="p1Name" placeholder="Enter Player 1 Name" oninput="updateName(1)">
+    <input type="text" id="p2Name" placeholder="Enter Player 2 Name" oninput="updateName(2)">
+  </div>
+  
+  <div class="health-bar-container p1-health-container">              
+    <div class="health-bar" id="p1HealthBar"></div>              
+    <span class="health-text p1-health-text" id="p1HealthText">100%</span>              
+  </div>              
+  <div class="health-bar-container p2-health-container">              
+    <div class="health-bar" id="p2HealthBar"></div>              
+    <span class="health-text p2-health-text" id="p2HealthText">100%</span>              
+  </div>      
+  <div class="player-label p1-label" id="p1Label">🟦 Player 1</div>              
+  <div class="player-label p2-label" id="p2Label">🟥 Player 2</div>      
+
+  <div class="keys">              
+    <h2>🟦 Player 1 🎮: Move - <b>W A S D</b> | 🔫Shoot - <b>SPACE</b> | 🛡️Shield - <b>Q</b></h2>              
+    <h2>🟥 Player 2 🎮: Move - <b>Arrow Keys</b> | 🔫Shoot - <b>ENTER</b> | 🛡️Shield - <b>M</b></h2>              
+  </div>              
+
+  <canvas id="gameCanvas" width="800" height="400"></canvas>    
+  <h2 id="winner"></h2>              
+  <div class="button-container">              
+    <button onclick="restartGame()">Restart Game</button>              
+    <button onclick="toggleFullScreen()">⬛ Full Screen</button>              
+  </div>              
+
+  <script>  
+    function toggleFullScreen() {  
+      if (!document.fullscreenElement) {  
+        document.documentElement.requestFullscreen();  
+      } else {  
+        if (document.exitFullscreen) {  
+          document.exitFullscreen();  
+        }  
+      }  
+    }
+
+    function updateName(player) {  
+      let name = document.getElementById(`p${player}Name`).value;  
+      document.getElementById(`p${player}Label`).textContent = name ? `🟦 ${name}` : `🟦 Player ${player}`;  
+    }  
+  </script>              
+  <script src="game.js"></script>    
+</body>              
+</html>
