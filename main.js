@@ -2,10 +2,8 @@
 function toggleFullScreen() {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
-  } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    }
+  } else if (document.exitFullscreen) {
+    document.exitFullscreen();
   }
 }
 
@@ -113,10 +111,24 @@ function movePlayers() {
   player2.shieldActive = keys.m;
 }
 
+// Draw the top status (shield percentages) on the canvas
+function drawTopStatus() {
+  ctx.fillStyle = "white";
+  ctx.font = "18px Arial";
+  // Display Player 1's shield percentage at the top-left
+  ctx.textAlign = "left";
+  ctx.fillText("🛡️ " + player1.shield + "%", 10, 25);
+  // Display Player 2's shield percentage at the top-right
+  ctx.textAlign = "right";
+  ctx.fillText("🛡️ " + player2.shield + "%", canvas.width - 10, 25);
+  ctx.textAlign = "left"; // reset alignment
+}
+
 // Main game loop
 function gameLoop() {
   if (!gameRunning) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawTopStatus();
   movePlayers();
   updateBullets();
   drawPlayer(player1);
@@ -127,7 +139,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Draw a player and, if active, their shield
+// Draw a player on the canvas
 function drawPlayer(player) {
   ctx.fillStyle = player.color;
   ctx.fillRect(player.x, player.y, player.width, player.height);
@@ -246,7 +258,6 @@ function checkGameOver() {
 
 // Restart Game & Reset Players and Names
 function restartGame() {
-  // Exit full screen if active
   if (document.fullscreenElement) {
     document.exitFullscreen();
   }
@@ -275,6 +286,7 @@ function restartGame() {
   const p2NameDisplay = document.getElementById("p2NameDisplay");
   if (p2NameDisplay) p2NameDisplay.textContent = "🟥 " + p2Name;
 
+  updateHealthBars();
   dropPlayers();
 }
 
