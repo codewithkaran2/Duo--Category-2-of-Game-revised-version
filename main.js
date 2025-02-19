@@ -123,6 +123,7 @@ function gameLoop() {
   drawPlayer(player2);
   drawMessage(player1);
   drawMessage(player2);
+  checkGameOver();
   requestAnimationFrame(gameLoop);
 }
 
@@ -227,13 +228,29 @@ function updateHealthBars() {
   p2HealthText.textContent = player2.health + "%";
 }
 
+// Check if the game is over and display the winner
+function checkGameOver() {
+  if (player1.health <= 0 || player2.health <= 0) {
+    gameRunning = false;
+    let winnerText = "";
+    if (player1.health <= 0 && player2.health <= 0) {
+      winnerText = "It's a draw!";
+    } else if (player1.health <= 0) {
+      winnerText = (document.getElementById("p2NameDisplay") ? document.getElementById("p2NameDisplay").textContent : "Player 2") + " wins!";
+    } else if (player2.health <= 0) {
+      winnerText = (document.getElementById("p1NameDisplay") ? document.getElementById("p1NameDisplay").textContent : "Player 1") + " wins!";
+    }
+    document.getElementById("winner").textContent = winnerText;
+  }
+}
+
 // Restart Game & Reset Players and Names
 function restartGame() {
   // Exit full screen if active
   if (document.fullscreenElement) {
     document.exitFullscreen();
   }
-  // Reset positions
+  // Reset positions and stats
   player1.x = 100;
   player1.y = 0;
   player2.x = 600;
@@ -244,6 +261,7 @@ function restartGame() {
   player2.shield = 100;
   gameRunning = false;
   bullets = [];
+  document.getElementById("winner").textContent = "";
 
   // Reset player names
   document.getElementById("p1Name").value = "";
